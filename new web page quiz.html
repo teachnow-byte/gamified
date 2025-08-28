@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <h>My Digital Math Quiz</h>
+  <meta charset="UTF-8">
+  <title>My Digital Math Quiz</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f7f7f7; }
+    .quiz-container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    .question { font-weight: bold; margin-bottom: 10px; }
+    .option { display: block; margin: 6px 0; padding: 8px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; }
+    .option.selected { background-color: #e0e7ff; border-color: #2677e0; }
+    .feedback { margin-top: 5px; font-style: italic; }
+    .hidden { display: none; }
+    .result { margin-top: 20px; font-size: 18px; font-weight: bold; }
+    .nav-btn { margin: 10px 5px 0 5px; padding: 8px 16px; font-size: 16px; cursor: pointer; }
+    #studentName { width: 60%; padding: 8px; margin-bottom: 15px; font-size: 1em; }
+    #nameLabel { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div id="nameSection">
+      <label id="nameLabel" for="studentName">Enter your name:</label>
+      <input type="text" id="studentName" placeholder="Your Name" />
+    </div>
+    <div id="quiz"></div>
+    <div id="navigation"></div>
+    <div id="result" class="result hidden"></div>
+  </div>
+
+<script>
+const questions = [
+  {
+    question: "1. What is 7 × 8?",
+    options: ["A. 54", "B. 56", "C. 64", "D. 58"],
+    answer: 1,
+    feedback: "Multiplying 7 by 8 equals 56."
+  },
+  {
+    question: "2. What is the value of 3/4 of 20?",
+    options: ["A. 10", "B. 12", "C. 15", "D. 18"],
+    answer: 2,
+    feedback: "Three quarters of 20 = (3 × 20) ÷ 4 = 15."
+  },
+  {
+    question: "3. Which number is prime?",
+    options: ["A. 21", "B. 29", "C. 39", "D. 51"],
+    answer: 1,
+    feedback: "29 is only divisible by 1 and itself."
+  },
+  {
+    question: "4. A square has side length 12 cm. What is its perimeter?",
+    options: ["A. 36 cm", "B. 44 cm", "C. 48 cm", "D. 52 cm"],
+    answer: 2,
+    feedback: "Perimeter = 4 × side = 4 × 12 = 48 cm."
+  },
+  {
+    question: "5. Solve: 120 ÷ 10 + 6 = ?",
+    options: ["A. 12", "B. 16", "C. 18", "D. 20"],
+    answer: 1,
+    feedback: "120 ÷ 10 = 12, then add 6 = 18."
+  }
+];
+
+let currentQuestion = 0;
+let selectedAnswers = Array(questions.length).fill(null);
+
+function renderQuestion() {
+  const q = questions[currentQuestion];
+  const quizDiv = document.getElementById("quiz");
+  quizDiv.innerHTML = `
+    <div class="question">${q.question}</div>
+    ${q.options.map((opt, i) => `
+      <div class="option${selectedAnswers[currentQuestion] === i ? ' selected' : ''}" onclick="selectOption(${i})">${opt}</div>
+    `).join("")}
+    <div id="feedback" class="feedback hidden"></div>
+  `;
+
+  renderNavigation();
+}
+
+function selectOption(index) {
+  selectedAnswers[currentQuestion] = index;
+  renderQuestion();
+}
+
+function renderNavigation() {
+  const navDiv = document.getElementById("navigation");
+  let navHtml = "";
+
+  if (currentQuestion > 0) {
+    navHtml += `<button class="nav-btn" onclick="prevQuestion()">Back</button>`;
+  }
+  if (currentQuestion < questions.length - 1) {
+    navHtml += `<button class="nav-btn" onclick="nextQuestion()">Next</button>`;
+  }
+  if (currentQuestion === questions.length - 1) {
+    navHtml += `<button class="nav-btn" onclick="submitQuiz()">Submit</button>`;
+  }
+  navDiv.innerHTML = navHtml;
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    renderQuestion();
+  }
+}
+
+function nextQuestion() {
+  if (currentQuestion < questions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  }
+}
+
+function submitQuiz() {
+  const name = document.getElementById("studentName").value.trim() || "Student";
+  let score = 0;
+  let feedbackDetails = "";
+
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    if (selectedAnswers[i] === q.answer) {
+      score++;
+      feedbackDetails += `<li>Q${i+1}: Correct! ${q.feedback}</li>`;
+    } else if (selectedAnswers[i] !== null) {
+      feedbackDetails += `<li>Q${i+1}: Incorrect. ${q.feedback}</li>`;
+    } else {
+      feedbackDetails += `<li>Q${i+1}: No answer selected.</li>`;
+    }
+  }
+
+  const percent = Math.round((score / questions.length) * 100);
+  let grade = "F";
+  if (percent >= 90) grade = "A";
+  else if (percent >= 70) grade = "B";
+  else if (percent >= 50) grade = "C";
+  else if (percent >= 40) grade = "D";
+  else if (percent >= 25) grade = "E";
+  else grade = "F";
+
+  document.getElementById("quiz").innerHTML = "";
+  document.getElementById("navigation").innerHTML = "";
+  document.getElementById("result").innerHTML = 
+    `<div>Thank you, <b>${name}</b>!</div>
+     <div>You scored ${score}/${questions.length} (${percent}%).<br>Grade: ${grade}</div>
+     <ul style="text-align:left; margin-top:10px;">${feedbackDetails}</ul>`;
+  document.getElementById("result").classList.remove("hidden");
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
